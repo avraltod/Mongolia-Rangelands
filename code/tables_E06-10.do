@@ -352,7 +352,7 @@
 		sgr_smr_prec1 = r(b16) sgr_smr_prec2 = r(b26) sgr_smr_prec3 = r(b36) sgr_smr_prec4 = r(b46) sgr_smr_prec5 = r(b56) sgr_smr_prec6 = r(b66) ///
 		sgr_smr_ws_ave1 = r(b17) sgr_smr_ws_ave2 = r(b27) sgr_smr_ws_ave3 = r(b37) sgr_smr_ws_ave4 = r(b47) sgr_smr_ws_ave5 = r(b57) sgr_smr_ws_ave6 = r(b67) ///
 			, reps(10000) /* nodots nolegend */ seed(0123456789) ///
-			saving("$dta/wrk/boot_hd_nolag.dta" , replace): BSHDNoLag , lag(1) fst(9) sst(40)
+			saving("$dta/wrk/boot_hd_nolag.dta" , replace): BSHD , lag(1) fst(9) sst(40)
 *------------------------------------------------------------------------------*
 	use "$dta/wrk/boot_hd_nolag.dta" , clear 
 		g id=_n
