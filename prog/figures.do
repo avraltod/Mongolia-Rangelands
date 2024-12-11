@@ -1148,6 +1148,74 @@
 	graph export "$fig/shapley.png", replace width(1600)
 	graph export "$olf/fig/main/fg04.png", replace width(1600)
 	
+
+********************************************************************************
+**# Figure A.1: Administrative Divisions of Mongolia
+********************************************************************************
+// 	cd "$map"
+//
+// 	geoframe create mng1 mn_aimag_db, replace shp(mn_aimag_xy) id(shp_id) coord(c_X c_Y)
+// 	geoframe create mng2 mn_soum_db, replace shp(mn_soum_xy) id(shp_id) coord(c_X c_Y)
+// 	geoframe create mng3 mn_bag_db, replace shp(mn_bag_xy) id(shp_id) coord(c_X c_Y)
+// 	geoframe create amg mn_aimag_db , replace  id(shp_id) coord(c_X c_Y)
+// 		use mn_aimag_db , clear 
+// 			replace aimag_eng = "{bf:Ulaanbaatar}" if aimag_eng == "Ulaanbaatar"
+// 		save mn_aimag_db , replace 
+// 	geoframe create ub mn_aimag_db , replace  id(shp_id) coord(c_X c_Y) shp(mn_aimag_xy)
+//
+//	
+// 	geoplot ///
+// 		(line mng3, lc(green) lw(0.05) label(" Bagh"))  ///
+// 		(line mng2, lc(blue) lw(0.1) label(" Soum")) ///
+// 		(line mng1, lc(black) lw(0.2) label(" Aimag"))  ///
+// 		(label mng1 aimag_eng if aid == 11 ,  color(red) fc(gray) pos(1) label(" Ulaanbaatar")) ///
+// 		(symbol ub  if aid == 11 , size(*.5) color(red)  shape(star) label("Capital city")) ///
+// 			, tight sbar( pos(5)) compass(pos(1)) ///
+// 				legend(layout( -"Administrative" "unit boundaries" 3  2  1 5) pos(7))
+// 	graph export "$fig/fgA1.png", replace height(1600)
+// 	graph export "$olf/fig/supp/fgA1.png", replace height(1600)
+	
+********************************************************************************
+**# Figure B.2: Seasonal Grazing Ranges across Mongolia
+********************************************************************************
+* WGR SGR 	
+********************************************************************************	
+// 	use ${map}/mn_soum_db.dta, clear 
+// 		spmap using ${map}/mn_soum_xy.dta , ///
+// 			id(shp_id) fc(gs12%50) os(.03) oc(gs2%50) ///
+// 				legenda(on) legl("Not Grazing Range") ///
+// 			polygon(data(${map}/mn_pas_xy.dta) by(pasture) select(keep if pasture<3) ///
+// 				fc( blue%50 green%50 gs12%50  ) os(*0 ..) ///
+// 					legenda(on) legl("Winter-Spring Grazing Range, WGR" ///
+// 						"Summer-Fall Grazing Range, SGR" "Other")) ///
+// 			line(data(${map}/mn_soum_xy.dta)  ///
+// 				co(gs12%50) si(0.1 ..)  ///
+// 					legenda(on) legl("Soum boundary") ) ///
+// 					 legend(size(*1.5) )
+// 	graph export "$fig/fgB2.png", replace height(1600)
+// 	graph export "$olf/fig/supp/fgB2.png", replace height(1600)
+	
+
+********************************************************************************
+**# Figure B.3: Ecological Zones of Mongolia
+********************************************************************************
+* ECO ZONES  	
+********************************************************************************
+// 	use ${map}/mn_soum_db.dta, clear 
+// 		spmap using ${map}/mn_soum_xy.dta , ///
+// 			id(shp_id) fc(none) os(.1) oc(gs1) ///
+// 				legenda(off)  ///
+// 			polygon(data(${map}/mn_eco_xy.dta) by(zonenameen) select(keep if zz < 8) ///
+// 				fc( sand green ltblue dkgreen midgreen*.35 ///
+// 					midgreen midblue ) os(none ..) ///
+// 					legenda(on) legshow(7 3 4 2 6 5 1) ) ///
+// 			line(data(${map}/mn_soum_xy.dta)  ///
+// 				co(gs1%10) si(0.1 ..)  ///
+// 					legenda(on) legl("Soum boundary") ) ///
+// 					 legend(size(*1.5) )
+// 	graph export "$fig/fgB3.png", replace height(1600)
+// 	graph export "$olf/fig/supp/fgB3.png", replace height(1600)
+	
 ********************************************************************************
 **# Figure C3: The Predicted Herd Size and Zhud Impacts
 ********************************************************************************
@@ -1809,6 +1877,334 @@
 	graph export "$fig/fgH2.png", replace height(1600)
 	graph export "$olf/fig/supp/fgH2.png", replace height(1600)
 	
-		
+********************************************************************************
+**# Figure H.3: Spatial animation of average NDVI 
+* for soum-level summer grazing ranges, 1985-2024.	
+********************************************************************************
+********************************************************************************
+* NDVI    	
+********************************************************************************
 	
+	geoframe create mng1 ${map}/mn_aimag_db, ///
+		replace shp(${map}/mn_aimag_xy) id(shp_id) coord(c_X c_Y)
+	geoframe create mng2 ${map}/mn_soum_db, ///
+		replace shp(${map}/mn_soum_xy) id(shp_id) coord(c_X c_Y)
+
+	use $dta/wrk/wrk_soum.dta , clear 
+		keep shp_id year landsat_ndvi_na_ave
+			*ren cen_* * 
+	
+	g y = landsat_ndvi_na_ave	
+	su y   //if year == 2024
+		format y %9.2f 
+	
+	save $map/ndvi, replace 
+	su 
+		
+	local MAX = ceil(`r(max)')
+	di `MAX'
+	local MIN = floor(`r(min)')
+	di `MIN'	
+	loc cln = 30
+	loc uc = `cln' - 1
+	_pctile y, n(`cln')
+	
+	loc tmp ""
+	foreach b of numlist 1/`uc'{
+// 		di "`r(r`b')'"
+		loc a = round(`r(r`b')', .001)
+		loc a: di %6.3g `a'		
+		loc tmp = "`tmp' `a'"
+// 		di "`tmp'"
+	}
+	loc clb = "`MIN' `tmp' `MAX'"
+	di "`clb'"
+		
+// 	colorpalette viridis, n(`cln') nograph reverse 
+// 	colorpalette plasma, n(`cln') nograph reverse 
+// 	colorpalette cividis, ipolate(`cln', power(1.2)) nograph reverse 
+// 	colorpalette HSV purplegreen, ipolate(`cln') nograph  	
+// 	colorpalette HSV greens , ipolate(`cln') nograph  reverse
+// 	colorpalette HCL plasma , ipolate(`cln') nograph  reverse
+// 	colorpalette HSV terrain , ipolate(`cln') nograph  reverse
+	colorpalette tab Green-Gold , ipolate(`cln') nograph 
+// 	colorpalette RdYlGn , ipolate(`cln') nograph 
+// 	colorpalette BrBG , ipolate(`cln') nograph 
+// 	colorpalette matplot summer , ipolate(`cln') nograph reverse
+
+
+	loc i = 0 
+	loc colors `r(p)'
+	foreach y of numlist 1985/2024 {
+		loc `i++'
+		
+	use $dta/wrk/wrk_soum.dta , clear 
+		keep shp_id year landsat_ndvi_na_ave	
+		g y = landsat_ndvi_na_ave	
+		keep  if year == `y'
+			format y %9.1f 
+		unique shp_id 
+		merge 1:1 shp_id using ${map}/mn_aimag_db, assert(1 3) nogen 
+	save $map/ndvi, replace 
+	
+	geoframe create ndvi ndvi , ///
+		replace  shp(${map}/mn_soum_xy) id(shp_id)	
+	
+	geoplot ///
+		(area ndvi y, cuts(`clb') color(tab Green-Gold ) label("@lb - @ub")) ///
+		(line mng2, lc(blue%50) lw(0.1) label(" Soum")) ///
+		(line mng1, lc(black%50) lw(0.2) label(" Aimag"))  ///
+					, tight clegend( pos(3) title("NDVI" "(`y')") outside height(*2) mis) ///
+				zlabel(#10 )  sbar( pos(7)  ) compass(pos(11)) ///
+				legend(layout(  - 3  2) pos(9))
+
+	graph export ${png}/mng_ndvi_`y'.png, replace
+	graph export "$olf/fig/supp/ndvi/ndvi_`y'.png", replace height(800)
+	}
+
+	
+********************************************************************************
+**# Figure H.4: Spatial animation of predicted soum-level herd size 
+* from the first-stage equation, 1986-2024.	
+********************************************************************************
+* PREDICTED HERDSIZE     	
+********************************************************************************
+	use "$dta/wrk/wrk_soum.dta", clear 
+	keep year asid su_*_total idw* *na_ave sgr_* wgr_* eco* aid sid shp_id 
+	
+	xtset asid year 
+
+	* vegetation index (NDVI)
+	cap drop lndvi 
+		g lndvi = log(landsat_ndvi_na_ave)
+			la var lndvi "$ \ln  B^{summer}_{st, SGR} $"
+	cap drop lndvilag  
+		g lndvilag = L.lndvi 
+			la var lndvilag "$ \ln B^{summer}_{s,t-1, SGR} $"
+	* june survey in sheep units (t, calender year )
+	cap drop survey 
+		g survey = log(su_svy_total)
+			la var survey "$ \ln HS ^{June}_{st} $"
+	* december census in sheep units (t+1, non calender year)
+	cap drop census 
+	g census = log(su_cen_total)  
+	la var census "$ \ln  HS ^{December}_{st} $"
+
+	*SGR weather variables 
+	#delimit;
+	loc HED 
+		`" 
+		"GDD(0^\circ\text{C} ,5^\circ\text{C}]" 
+		"GDD(5^\circ\text{C},10^\circ\text{C}]" 
+		"GDD(10^\circ\text{C},15^\circ\text{C}]" 
+		"GDD(15^\circ\text{C},20^\circ\text{C}]" 
+		"GDD(20^\circ\text{C},25^\circ\text{C}]" 
+		"GDD(20^\circ\text{C},30^\circ\text{C}]" 
+		"GDD(>30^\circ\text{C})"  
+		"'; 	
+	#delimit cr 
+		* SGR , only HED 
+		foreach ssn in smr aut wtr spr {
+		* GDDs  
+			foreach i of numlist 1/7 {
+				loc h : word `i' of `HED'
+					la var sgr_`ssn'_hed`i' "\quad $ `h' $ "
+			}
+			
+		replace sgr_`ssn'_hed5 = sgr_`ssn'_hed5 + sgr_`ssn'_hed6 + sgr_`ssn'_hed7 
+			la var sgr_`ssn'_hed5 "\quad $ GDD(>20^\circ\text{C}) $ "
+				cap drop sgr_`ssn'_hed1 sgr_`ssn'_hed2 sgr_`ssn'_hed6 sgr_`ssn'_hed7
+				
+		* total precipitation (m)
+			replace sgr_`ssn'_prec = (sgr_`ssn'_prec) / 1000 
+				la var sgr_`ssn'_prec " \quad Precipitation (m, acc.) "
+
+		* ave. wind speed (m/s)		
+			la var sgr_`ssn'_ws_ave " \quad Wind speed (m/s, ave.) "
+		}	
+		
+	*ecozones 
+	tab eco, g(ez)
+		la var ez1 "Mountain taiga"
+		la var ez2 "Forest steppe"
+		la var ez3 "Steppe"
+		la var ez4 "Semi desert"
+		la var ez5 "Desert"
+		
+	loc ZN `" "Mountain taiga" "Forest steppe" "Steppe" "Semi desert" "Desert" "'	
+
+		foreach i of numlist 1/5 {
+			loc z: word `i' of `ZN' 
+			
+			*GDD(20+)
+				cap drop ez`i'_sgr_smr_hed5
+					g sgr_smr_hed5_ez`i' = ez`i' * sgr_smr_hed5
+						la var sgr_smr_hed5_ez`i' "\quad $ \times $ `z'"
+			*HS Survey	
+				cap drop survey_ez`i'
+					g survey_ez`i' = ez`i' * survey
+						la var survey_ez`i' "\quad $ \times $ `z'"
+			*HS Census 	
+				cap drop census_ez`i'
+					g census_ez`i' = ez`i' * census
+						la var census_ez`i' "\quad $ \times $ `z'"
+		}
+
+	*SGR WTHR 
+	glo SGRAUT "sgr_aut_hed3 sgr_aut_hed4 sgr_aut_hed5 sgr_aut_prec sgr_aut_ws_ave"
+	glo SGRWTR "sgr_wtr_hed3 sgr_wtr_hed4 sgr_wtr_hed5 sgr_wtr_prec sgr_wtr_ws_ave"
+	glo SGRSPR "sgr_spr_hed3 sgr_spr_hed4 sgr_spr_hed5 sgr_spr_prec sgr_spr_ws_ave"
+	glo SGRSMR "sgr_smr_hed3 sgr_smr_hed4 sgr_smr_hed5_ez? sgr_smr_prec sgr_smr_ws_ave"
+	
+	*WGR weather variables (excluded IVs)
+	#delimit; 
+	loc CED 
+	`" 
+		"FDD(<-30^\circ\text{C})" 
+		"FDD(-30^\circ\text{C},-25^\circ\text{C}]" 
+		"FDD(-25^\circ\text{C},-20^\circ\text{C}]" 
+		"FDD(-20^\circ\text{C},-15^\circ\text{C}]" 
+		"FDD(-15^\circ\text{C},-10^\circ\text{C}]" 
+		"FDD(-10^\circ\text{C},-5^\circ\text{C}]" 
+		"FDD(-5^\circ\text{C}, 0^\circ\text{C}]"  
+	"'; 
+	loc WED 
+	`" 
+		"WD(0,1]" 
+		"WD(1,5]" 
+		"WD(5,10]" 
+		"WD(>10)" 
+	"'; 
+	#delimit cr 
+	
+	*summer W on WGR 
+		* HED (past summer, t-1) 
+		replace wgr_smr_hed5 = wgr_smr_hed5 + wgr_smr_hed6 + wgr_smr_hed7 
+			la var wgr_smr_hed5 "\quad $ GDD(>20^\circ\text{C}) $ "
+				cap drop wgr_smr_hed1 wgr_smr_hed2 wgr_smr_hed3 ///
+					wgr_smr_he4 wgr_smr_hed6 wgr_smr_hed7 
+			g lag_wgr_smr_hed5 = L.wgr_smr_hed5 
+				la var lag_wgr_smr_hed5 " \quad $ GDD(>20^\circ\text{C}) $ "
+					cap drop wgr_smr_hed5 
+				
+		* total precipitation (m), (past summer, t-1)
+			replace wgr_smr_prec = (wgr_smr_prec) / 1000 
+				la var wgr_smr_prec " \quad Rainfall (m, acc.) "		
+			g lag_wgr_smr_prec = L.wgr_smr_prec 
+				la var lag_wgr_smr_prec " \quad Rainfall (m, acc.) "
+					cap drop wgr_smr_prec 
+				
+	*autumn W on WGR 
+		* CED 
+		replace wgr_aut_ced3 = wgr_aut_ced3 + wgr_aut_ced2 + wgr_aut_ced1 
+			la var wgr_aut_ced3 "\quad $ FDD (<-20^\circ\text{C}) $ "
+				cap drop wgr_aut_ced1 wgr_aut_ced2 wgr_aut_ced4 ///
+					wgr_aut_ced5 wgr_aut_ced6 wgr_aut_ced7
+					
+	*winter W on WGR 
+		* CED 
+		replace wgr_wtr_ced3 = wgr_wtr_ced3 + wgr_wtr_ced2 + wgr_wtr_ced1 
+			la var wgr_wtr_ced3 "\quad $ FDD (<-20^\circ\text{C}) $ "
+				cap drop wgr_wtr_ced1 wgr_wtr_ced2 wgr_wtr_ced4 ///
+					wgr_wtr_ced5 wgr_wtr_ced6 wgr_wtr_ced7
+		* WED 
+		replace wgr_wtr_wed3 = wgr_wtr_wed3 + wgr_wtr_wed4 
+				la var wgr_wtr_wed3 "\quad Windy days $ (>5m/s)$ "
+					cap drop wgr_wtr_wed1 wgr_wtr_wed2 wgr_wtr_wed4
+		* snow density (kg/m3)
+			la var wgr_wtr_sd " \quad Snow density, $ kg/m^3 $ "						
+					
+	*spring W on WGR 
+		* CED 
+		replace wgr_spr_ced3 = wgr_spr_ced3 + wgr_spr_ced2 + wgr_spr_ced1 
+			la var wgr_spr_ced3 "\quad $ FDD (<-20^\circ\text{C}) $ "
+				cap drop wgr_spr_ced1 wgr_spr_ced2 wgr_spr_ced4 ///
+					wgr_spr_ced5 wgr_spr_ced6 wgr_spr_ced7				
+			
+	*WGR WTHR 
+	glo WGRSMR "lag_wgr_smr_prec lag_wgr_smr_hed5"
+	glo WGRAUT "wgr_aut_ced3"
+	glo WGRWTR "wgr_wtr_sd wgr_wtr_ced3 wgr_wtr_wed3"
+	glo WGRSPR "wgr_spr_ced3"
+
+	glo y survey 
+	glo x census 
+
+	loc varlist $y $x lndvilag ${WGRSMR} ${WGRAUT} ${WGRWTR} ${WGRSPR} ${SGRSPR} ${SGRWTR} ${SGRAUT}
+	reghdfe `varlist' , absorb(i.year i.asid i.eco#i.year) vce(cluster asid)
+
+	cap drop herdsizehat
+		predict herdsizehat, xb 
+	cap drop svyhat 
+		g svyhat = exp(herdsizehat)
+		g y = svyhat	
+	tempfile hshat 
+	save `hshat', replace 
+
+	su y
+	
+	local MAX = ceil(`r(max)')
+	di `MAX'
+	local MIN = floor(`r(min)')
+	di `MIN'	
+	loc cln = 30
+	loc uc = `cln' - 1
+	_pctile y, n(`cln')
+	
+	loc tmp ""
+	foreach b of numlist 1/`uc'{
+// 		di "`r(r`b')'"
+		loc a = round(`r(r`b')', .001)
+		loc a: di %6.3g `a'		
+		loc tmp = "`tmp' `a'"
+// 		di "`tmp'"
+	}
+	loc clb = "`MIN' `tmp' `MAX'"
+	di "`clb'"
+		
+// 	colorpalette viridis, n(`cln') nograph reverse 
+	colorpalette plasma, n(`cln') nograph reverse 
+// 	colorpalette cividis, ipolate(`cln', power(1.2)) nograph reverse 
+// 	colorpalette HSV purplegreen, ipolate(`cln') nograph  	
+// 	colorpalette HSV greens , ipolate(`cln') nograph  reverse
+// 	colorpalette HCL plasma , ipolate(`cln') nograph  reverse
+// 	colorpalette HSV terrain , ipolate(`cln') nograph  reverse
+// 	colorpalette tab Green-Gold , ipolate(`cln') nograph 
+// 	colorpalette RdYlGn , ipolate(`cln') nograph 
+// 	colorpalette BrBG , ipolate(`cln') nograph 
+// 	colorpalette matplot summer , ipolate(`cln') nograph reverse
+// 	colorpalette inferno, n(`cln') nograph reverse 
+
+	geoframe create mng1 ${map}/mn_aimag_db, ///
+		replace shp(${map}/mn_aimag_xy) id(shp_id) coord(c_X c_Y)
+	geoframe create mng2 ${map}/mn_soum_db, ///
+		replace shp(${map}/mn_soum_xy) id(shp_id) coord(c_X c_Y)
+		
+	loc i = 0 
+	loc colors `r(p)'
+	foreach y of numlist 1986/2024 {
+		loc `i++'
+		
+	use `hshat' , clear 
+		format y %9.1f 
+		keep if year == `y'
+		unique shp_id 
+		merge 1:1 shp_id using ${map}/mn_aimag_db, assert(1 3) nogen 
+	save $map/hshat, replace
+
+	geoframe create hshat $map/hshat , ///
+		replace shp(${map}/mn_soum_xy) id(shp_id) 
+
+	geoplot ///
+		(area hshat y, cuts(`clb') color(plasma,  reverse ) label("@lb - @ub")) ///
+		(line mng2, lc(blue%50) lw(0.1) label(" Soum")) ///
+		(line mng1, lc(black%50) lw(0.2) label(" Aimag"))  ///
+					, tight clegend( pos(3) title("HS" "(`y')") outside height(*2) mis) ///
+				zlabel(#10 )  sbar( pos(7)  ) compass(pos(11)) ///
+				legend(layout(  - 3  2) pos(9))
+
+	graph export "$olf/fig/supp/hshat/hshat_`y'.png", replace height(800)
+
+	}
+
 	
