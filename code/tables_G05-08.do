@@ -1207,7 +1207,7 @@
 
 ********************************************************************************
 ********************************************************************************
-**# Table G.7: Second Stage: A Panel of 20-year Differences with Period FEs 
+**# Table G.7: Second Stage: A Panel of 10-year Differences with Period FEs 
 ********************************************************************************
 *------------------------------------------------------------------------------*
 * Second Step: Livestock on Weather without a lag of log of NDVI with year FEs 
@@ -1406,7 +1406,7 @@
 			
 ********************************************************************************
 ********************************************************************************
-**# Table G.8: Second Stage: A Panel of 20-year Differences without Period FEs 
+**# Table G.8: Second Stage: A Panel of 10-year Differences without Period FEs 
 ********************************************************************************
 *------------------------------------------------------------------------------*
 * Second Step: Livestock on Weather without a lag of log of NDVI withour year FEs 
@@ -1430,7 +1430,7 @@
 	glo sumvar "hshat_ez1 hshat_ez2 hshat_ez3 hshat_ez4 hshat_ez5 sgr_smr_hed5_ez1 sgr_smr_hed5_ez2 sgr_smr_hed5_ez3 sgr_smr_hed5_ez4 sgr_smr_hed5_ez5"
 	* bringing bootstrapping
 	preserve 
-		use "$dta/wrk/sd_ld20_eco_noTFE.dta", clear 
+		use "$dta/wrk/sd_ld10_eco_noTFE.dta", clear 
 		matrix S = J(6,10,.)
 		matrix rownames S = se 
 		matrix colnames S = ${sumvar} 					
